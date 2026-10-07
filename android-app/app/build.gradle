@@ -2,7 +2,7 @@ plugins { id 'com.android.application' }
 android {
     namespace 'com.bytewatcher.xiangjiang'
     compileSdk 35
-    defaultConfig { applicationId 'com.bytewatcher.xiangjiang.demo'; minSdk 26; targetSdk 34; versionCode 4; versionName '0.2.1-demo' }
+    defaultConfig { applicationId 'com.bytewatcher.xiangjiang.demo'; minSdk 26; targetSdk 34; versionCode 5; versionName '0.3.0-demo' }
     compileOptions { sourceCompatibility JavaVersion.VERSION_17; targetCompatibility JavaVersion.VERSION_17 }
     testOptions { unitTests.returnDefaultValues = true }
 }
