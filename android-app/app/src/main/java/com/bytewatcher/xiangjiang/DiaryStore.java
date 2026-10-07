@@ -100,19 +100,33 @@ public final class DiaryStore {
         for(int i=0;i<list.length();i++){ JSONArray p=list.getJSONObject(i).getJSONArray("photos");for(int j=0;j<p.length();j++)ids.add(p.getJSONObject(j).getString("id")); }return ids;
     }
     static String escape(String s){return s.replace("&","&amp;").replace("<","&lt;").replace(">","&gt;").replace("\"","&quot;").replace("'","&#39;");}
-    public synchronized void html(OutputStream stream, boolean exactLocation) throws Exception {
+    public synchronized void html(OutputStream stream, boolean exactLocation) throws Exception { html(stream, exactLocation, null); }
+    /** Offline keepsake page. Headings use the trip calendar when given; plans never become records. */
+    public synchronized void html(OutputStream stream, boolean exactLocation, JSONObject trip) throws Exception {
         JSONObject data=snapshot(); ArrayList<JSONObject> sorted=new ArrayList<>(); JSONArray list=data.getJSONArray("records");
         for(int i=0;i<list.length();i++)sorted.add(list.getJSONObject(i)); sorted.sort(Comparator.comparing(r->r.optString("occurredAt")));
+        int photoCount=0;Set<String> days=new LinkedHashSet<>();for(JSONObject r:sorted){photoCount+=r.getJSONArray("photos").length();days.add(r.getString("occurredAt").substring(0,10));}
         Writer out=new OutputStreamWriter(stream,StandardCharsets.UTF_8);
-        out.write("<!doctype html><html lang='zh-CN'><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; img-src data:; style-src 'unsafe-inline'\"><title>"+escape(data.getString("title"))+"</title><style>body{margin:0 auto;max-width:680px;padding:28px 20px;background:#fafcfb;color:#233934;font:17px/1.7 sans-serif}h1{font-size:32px}h2{color:#126b63}img{width:100%;height:auto;border-radius:12px}article{margin:32px 0}p{white-space:pre-wrap}small{color:#6a7b75}</style><h1>"+escape(data.getString("title"))+"</h1><p>武汉—长沙 / 示例两日行程<br>下面是实际记录，不是计划打卡。</p>");
-        String cover=data.optString("cover"); if(!cover.isEmpty())image(out,cover);
-        String date="";
-        for(JSONObject r:sorted){String t=r.getString("occurredAt");if(!date.equals(t.substring(0,10))){date=t.substring(0,10);out.write("<h2>"+escape(date)+"</h2>");}
-            out.write("<article><small>"+escape(t.substring(11,16))+" / "+escape(r.getString("place"))+"</small><p>"+escape(r.getString("text"))+"</p>");
-            JSONArray p=r.getJSONArray("photos");for(int j=0;j<p.length();j++)image(out,p.getJSONObject(j).getString("id"));
-            if(exactLocation&&r.has("location"))out.write("<small>记录位置 WGS84: "+escape(r.getJSONObject("location").toString())+"</small>");
+        out.write("<!doctype html><html lang='zh-CN'><meta charset='utf-8'><meta name='viewport' content='width=device-width,initial-scale=1'><meta http-equiv='Content-Security-Policy' content=\"default-src 'none'; img-src data:; style-src 'unsafe-inline'\"><title>"+escape(data.getString("title"))+"</title><style>"
+            +":root{--ink:#233934;--river:#126b63;--paper:#f7f4ec;--card:#fffdf8;--muted:#7a857f;--line:#e4ddcc}*{box-sizing:border-box}"
+            +"body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.8 'Songti SC','Noto Serif SC',serif}main{max-width:720px;margin:0 auto;padding:36px 20px 60px}"
+            +"header{text-align:center;padding:12px 0 24px}header .route{letter-spacing:.3em;color:var(--river);font:600 13px/1 sans-serif}h1{font-size:34px;margin:14px 0 6px;letter-spacing:.06em}"
+            +".meta{color:var(--muted);font:14px/1.6 sans-serif}.cover{margin:8px 0 28px}.cover img{width:100%;border-radius:4px;box-shadow:0 12px 30px rgba(35,57,52,.18)}"
+            +"section{margin-top:40px}.stamp{display:flex;align-items:center;gap:12px;margin:0 0 18px;color:var(--river);font:700 18px/1.4 sans-serif}.stamp:after{content:'';flex:1;height:1px;background:var(--line)}"
+            +".stamp b{display:inline-block;border:2px solid var(--river);border-radius:6px;padding:2px 10px;transform:rotate(-2deg)}"
+            +"article{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin:0 0 22px;box-shadow:0 2px 0 var(--line)}"
+            +"article .when{font:13px/1.4 sans-serif;color:var(--muted)}article .when strong{color:var(--river);font-size:15px;margin-right:8px}article p{white-space:pre-wrap;margin:10px 0 4px}"
+            +".photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:12px}.photos.one{grid-template-columns:1fr}.photos img{width:100%;height:100%;object-fit:cover;border-radius:8px;aspect-ratio:4/3}.photos.one img{aspect-ratio:auto}"
+            +".loc{display:block;margin-top:8px;font:12px/1.4 sans-serif;color:var(--muted)}footer{margin-top:48px;text-align:center;color:var(--muted);font:13px/1.6 sans-serif}"
+            +"</style><main><header><div class='route'>武汉 · 长沙 · 两日慢游</div><h1>"+escape(data.getString("title"))+"</h1><div class='meta'>"+days.size()+" 天 · "+sorted.size()+" 个时刻 · "+photoCount+" 张照片<br>下面是实际记录，不是计划打卡。</div></header>");
+        String cover=data.optString("cover"); if(!cover.isEmpty()){out.write("<div class='cover'>");image(out,cover);out.write("</div>");}
+        String date="";boolean open=false;
+        for(JSONObject r:sorted){String t=r.getString("occurredAt");if(!date.equals(t.substring(0,10))){date=t.substring(0,10);if(open)out.write("</section>");out.write("<section><h2 class='stamp'><b>"+escape(TripDates.heading(trip,date))+"</b></h2>");open=true;}
+            out.write("<article><div class='when'><strong>"+escape(t.substring(11,16))+"</strong>"+escape(r.getString("place"))+"</div><p>"+escape(r.getString("text"))+"</p>");
+            JSONArray p=r.getJSONArray("photos");if(p.length()>0){out.write("<div class='photos"+(p.length()==1?" one":"")+"'>");for(int j=0;j<p.length();j++)image(out,p.getJSONObject(j).getString("id"));out.write("</div>");}
+            if(exactLocation&&r.has("location"))out.write("<small class='loc'>记录位置 WGS84: "+escape(r.getJSONObject("location").toString())+"</small>");
             out.write("</article>");
-        }out.write("<small>照片和文字均包含在此文件中，可离线阅读。</small></html>");out.flush();
+        }if(open)out.write("</section>");out.write("<footer>照片和文字均包含在此文件中，可离线阅读。<br>湘江慢游 · 本机日记</footer></main></html>");out.flush();
     }
     void image(Writer out,String id)throws Exception{out.write("<img alt='旅行照片' src='data:image/jpeg;base64,");out.write(Base64.getEncoder().encodeToString(Files.readAllBytes(photo(id).toPath())));out.write("'>");}
     public synchronized void backup(OutputStream stream) throws Exception {

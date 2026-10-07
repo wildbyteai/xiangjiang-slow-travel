@@ -18,6 +18,8 @@
 
 ## 构建与测试
 
+推送或开 PR 时，GitHub Actions 会自动跑全部检查并产出可下载的 debug APK（见 [落地清单](LAUNCH.md)）。
+
 准备 Node.js 20+、JDK 17、Android SDK（platform 35 / build-tools 35.0.0），通过 `ANDROID_HOME` 或本机 `android-app/local.properties` 指定 SDK。需要网络下载公开依赖；不要提交 `local.properties`。
 
 ```sh
@@ -47,7 +49,7 @@ Gradle Wrapper 固定 8.9，AGP 8.7.3，minSdk 26、targetSdk 34、compileSdk 35
 
 ## 修改为自己的旅程
 
-首先修改 `maps/itinerary-data.json` 的日期、行程和交通字段，再运行 `node build.cjs`。地图范围目前只覆盖长沙核心区，`android-app/map.html` 的视图范围和 Java 界面仍有城市专用文案，不是任意城市的通用引擎。公开示例页还保留演示标题；如扩展行程需一起调整，不要将私人配置提交到公开仓库。
+首先修改 `maps/itinerary-data.json` 的日期、行程和交通字段，再运行 `node build.cjs`。日期只在这个文件里维护：App 地图筛选、日记日期标题和手机网页的“旅途中”状态都从 `days[].date` 读取。完整步骤、真机验收清单和发布说明见 [落地清单](LAUNCH.md)。地图范围目前只覆盖长沙核心区，`android-app/map.html` 的视图范围和 Java 界面仍有城市专用文案，不是任意城市的通用引擎。公开示例页还保留演示标题；如扩展行程需一起调整，不要将私人配置提交到公开仓库。
 
 ## 验证状态与授权
 

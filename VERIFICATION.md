@@ -15,3 +15,10 @@
 未完成安卓真机或模拟器、定位/相机/Photo Picker/Keystore实际操作、手机代表性视口的渲染布局、真实 Service Worker 离线、真实模型端点请求及首次联网依赖下载验收。本次不声称这些能力已通过真机验收。历史 H5 仅核对源码/资源/脚本语法，不纳入主产品功能通过结论。
 
 没有使用用户真实照片、真实位置、真实密钥或模型额度做测试；没有上传 APK、测试日志或私人备份。构建报告留在被 Git 忽略的本机 build 目录。
+
+## 0.3.0-demo 增量（2026-10-07）
+
+- 行程日期从代码中解耦：新增 `TripDates`，App 与网页都从 `days[].date` 读取，移除 Java/JS 中写死的示例日期。
+- 日记页与 HTML 导出改为按“第一天 · 岳麓书院 · 3月15日 周六”分组，导出页改为纸质手账风格（封面、日期印章、照片网格、统计）。
+- 本机检查：`node build.cjs`、`verify.cjs`（10项）、`guide-interaction-test.cjs`（6项）通过；主代码对 android-35 `javac` 编译通过；JVM 单元测试 47 项通过（新增 TripDates 4 项）。本次环境为 aarch64，未运行 Gradle lint/assembleDebug，交由新增的 GitHub Actions 在 PR 上验证。
+- 真机验收仍待完成，见 LAUNCH.md 第 3 节。

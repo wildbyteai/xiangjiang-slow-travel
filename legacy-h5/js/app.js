@@ -453,7 +453,7 @@
     // —— 时间节点临近放大 ——
     // 「现在」离某一条的时刻越近，那一条就放得越大，避免错过发车、取行李这类硬节点。
     // 只在旅行当天生效；加 `?now=HH:MM` 可强制进入该模式（供预览与自检脚本使用）。
-    const TRIP_DATE = { sat: '2025-03-15', sun: '2025-03-16' };
+    const TRIP_DATE = Object.fromEntries(itinerary.days.map(d => [d.id, d.date]));
     const LEAD_MIN = 60; // 提前多少分钟开始放大
     const FADE_MIN = 20; // 过点之后还提示多久
     const nowOverride = (() => {

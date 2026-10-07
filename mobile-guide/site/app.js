@@ -41,9 +41,9 @@
   function render(){
     const s=step(),d=day(),i=d.steps.findIndex(x=>x.id===s.id),all=trip.days.flatMap(x=>x.steps),next=all[all.findIndex(x=>x.id===s.id)+1];
     const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
-    $('#mode').textContent=['2025-03-15','2025-03-16'].includes(date)?'旅途中':'行程预览';
+    $('#mode').textContent=trip.days.some(d=>d.date===date)?'旅途中':'行程预览';
     document.querySelectorAll('[data-day]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.day===state.day)));
-    $('#step-count').textContent='DAY '+(state.day==='sat'?'01':'02')+' / 第 '+String(i+1).padStart(2,'0')+' 站';$('#progress').textContent=state.done.length+' / 13 已走过';
+    $('#step-count').textContent='DAY '+(state.day==='sat'?'01':'02')+' / 第 '+String(i+1).padStart(2,'0')+' 站';$('#progress').textContent=state.done.length+' / '+all.length+' 已走过';
     const titles=s.title.split(' · ');$('#stop-time').textContent=s.time;$('#stop-title').textContent=titles[0];$('#stop-subtitle').textContent=titles.slice(1).join(' · ');$('#stop-location').textContent=s.points.join(' · ');$('#destination-visual').hidden=s.id!=='sat-south';
     $('#step-focus').hidden=!s.focus;$('#focus-title').textContent=s.focus?.title||'';$('#focus-note').textContent=s.focus?.text||'';renderTiming();
     // These are row-KEY tokens, not display text: they must match keys in maps/itinerary-data.json rows.
