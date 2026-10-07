@@ -1,0 +1,223 @@
+<div id="changsha-slow-route">
+  <h2>长沙 · 两天慢游行程图</h2>
+  <div class="viz-row text-small">示例两日行程 · 武汉往返 · 湘江中路住宿 · 一天一个主景点</div>
+  <div class="viz-controls">
+    <label class="form-label">行程日期
+      <select class="form-select" data-day aria-label="行程日期">
+        <option value="sat">示例第一天 · 周六</option>
+        <option value="sun">示例第二天 · 周日</option>
+      </select>
+    </label>
+    <label class="form-label">地图范围
+      <select class="form-select" data-view aria-label="地图范围">
+        <option value="core">核心景区 · 湘江两岸</option>
+        <option value="city">全程交通 · 含长沙南站</option>
+        <option value="academy">书院入口 · 周日步行</option>
+      </select>
+    </label>
+    <button type="button" class="btn" data-zoom="1.5" aria-label="放大地图">放大</button>
+    <button type="button" class="btn" data-zoom="0.666667" aria-label="缩小地图">缩小</button>
+  </div>
+  <div class="text-small" data-day-summary></div>
+  <svg class="route-canvas" role="img" aria-label="长沙慢游行程图：切换日期和行程步骤，联动显示真实地理位置、交通、游览和餐饮区域。" preserveAspectRatio="xMidYMid meet"></svg>
+  <div class="viz-row text-small route-legend">
+    <span><b class="line metro2"></b>地铁2号线</span>
+    <span><b class="line metro4"></b>地铁4号线</span>
+    <span><b class="line shuttle"></b>园内车参考线</span>
+    <span><b class="line walking"></b>参考步行</span>
+    <span>◇ 餐饮／闲逛片区，非门店</span>
+    <span>◎ 当前步骤</span>
+  </div>
+  <div class="text-small selection" aria-live="polite" data-detail></div>
+  <div class="route-steps" role="group" aria-label="当天行程步骤" data-steps></div>
+  <section class="route-selected" aria-live="polite" aria-label="所选行程安排">
+    <h3 data-step-title></h3>
+    <div class="text-small" data-step-time></div>
+    <dl data-step-rows></dl>
+  </section>
+  <details class="route-prep"><summary>出发前确认 · 预约、天气、返程</summary><ul data-checklist></ul></details>
+  <div class="text-small text-muted route-credit">© OpenStreetMap contributors · WGS84 · 北向上 · 数据核验 2026-09-11<br>步行／园内车为公开地图参考，非实时导航；入口、停站与运营以出行当天为准。</div>
+  <script data-library>/*__D3_LIBRARY__*/</script>
+  <script type="application/json" data-map-data>__MAP_DATA__</script>
+  <script type="application/json" data-itinerary-data>__ITINERARY_DATA__</script>
+  <style>
+    #changsha-slow-route .route-canvas{display:block;width:100%;touch-action:none;overflow:hidden}
+    #changsha-slow-route .route-canvas text{fill:var(--foreground);font-size:12px;font-weight:400;paint-order:stroke;stroke:var(--background);stroke-width:4px;stroke-linejoin:round}
+    #changsha-slow-route .route-canvas .point-label{font-weight:500}
+    #changsha-slow-route .route-canvas .context-label{fill:var(--muted-foreground);stroke-width:3px}
+    #changsha-slow-route .route-legend{gap:8px 16px;margin-top:8px}
+    #changsha-slow-route .route-legend>span{display:inline-flex;align-items:center;gap:6px}
+    #changsha-slow-route .line{display:inline-block;width:24px;height:0;border-top:3px solid var(--viz-series-1)}
+    #changsha-slow-route .line.metro4{border-color:var(--viz-series-2)}
+    #changsha-slow-route .line.shuttle{border-color:var(--viz-series-3);border-top-style:dashed}
+    #changsha-slow-route .line.walking{border-color:var(--foreground);border-top:2px dotted}
+    #changsha-slow-route .selection{margin:12px 0}
+    #changsha-slow-route .route-steps{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+    /* Step chips inherit white-space:nowrap from the visualize kit's .btn, and a flex item's
+       default min-width:auto then refuses to shrink below the label's single-line width — so any
+       long step title overflows the container instead of wrapping. Allow these chips to wrap. */
+    #changsha-slow-route .route-steps .btn{white-space:normal;min-width:0;max-width:100%}
+    #changsha-slow-route .route-selected{margin:18px 0;overflow-wrap:anywhere}
+    #changsha-slow-route .route-selected dl{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px 14px;margin:12px 0}
+    #changsha-slow-route .route-selected dt{font-weight:500}
+    #changsha-slow-route .route-selected dd{margin:0}
+    #changsha-slow-route .route-prep{margin:16px 0}
+    #changsha-slow-route .route-prep li{margin:8px 0}
+    #changsha-slow-route .route-credit{margin-top:12px}
+  </style>
+  <script>
+  (()=>{
+    const root=document.getElementById('changsha-slow-route');
+    const data=JSON.parse(root.querySelector('[data-map-data]').textContent);
+    const itinerary=JSON.parse(root.querySelector('[data-itinerary-data]').textContent);
+    const anchorSpecs=[
+      ['way/184960645','坡子街·餐饮片区',null,'沿OSM坡子街道路取区域锚点；对应坡子街／悦方餐饮候选，不是费大厨或坛宗的门口。'],
+      ['way/445814171','太平街·可选闲逛','sat','沿OSM太平街道路取区域锚点；属饭后老城步道（下河街—太平街—坡子街）的一段，不是必去景点。'],
+      ['way/751872167','湖大·午餐片区','sat','取OSM麓山南路靠湖南大学一端的道路点；为书院附近可选餐饮区域，不代表已选餐馆。']
+    ];
+    for(const [id,name,day,description] of anchorSpecs){
+      const f=data.base.features.find(f=>f.properties.id===id);
+      if(!f||f.geometry.type!=='LineString')throw new Error('Missing sourced area geometry '+id);
+      const c=f.geometry.coordinates;
+      const coordinates=id==='way/751872167'?c[c.length-1]:d3.geoInterpolate(c[0],c[c.length-1])(0.5);
+      data.points.push({id:'area/'+id,name,kind:'area',day,coordinates,description,sourceGeometry:id});
+    }
+    data.points.find(p=>p.name==='湘江中路站').description='住宿区域示例，未预订；地图钉不是酒店入口。';
+    // Derived hotel candidate pin from public Nominatim road point (小西门下河街), not an OSM door-address node.
+    data.points.push({id:'derived/example-base',name:'湘江中路·住宿区域',kind:'base',coordinates:[112.9639139,28.1986407],description:'地铁站附近示例区域，无真实住宿订单。'});
+    const mainPoints=['湘江中路站','橘子洲站','溁湾镇站','湖南大学站','岳麓书院入口','青年毛泽东雕塑','洲头·问天台','坡子街·餐饮片区','太平街·可选闲逛','湖大·午餐片区','湘江中路·住宿区域'];
+    const pointOffsets={
+      '湘江中路站':[12,-12],'橘子洲站':[-12,25],'溁湾镇站':[-12,-16],
+      '湖南大学站':[10,22],'岳麓书院入口':[-12,-20],
+      '青年毛泽东雕塑':[12,-10],'洲头·问天台':[12,20],
+      '爱晚亭':[-10,-16],'书院西门':[-10,22],'雕塑附近下客区':[12,-8],'长沙南站':[-12,-16],
+      '湘江中路·住宿区域':[12,28],'坡子街·餐饮片区':[12,18],'太平街·可选闲逛':[-12,24],'湖大·午餐片区':[12,18]
+    };
+    const svg=d3.select(root.querySelector('.route-canvas'));
+    const detail=root.querySelector('[data-detail]');
+    let day=itinerary.days[0],selected=day.steps.find(s=>s.id===day.defaultStep);
+    let width=0,height=0,projection,path,view='core';
+    const extents={core:[[112.928,28.166],[112.973,28.205]],city:[[112.927,28.145],[113.065,28.207]],academy:[[112.930,28.181],[112.944,28.187]]};
+    const defs=svg.append('defs');defs.append('clipPath').attr('id','cs-map-clip').append('rect');
+    const scene=svg.append('g').attr('clip-path','url(#cs-map-clip)');
+    const base=scene.append('g'),routes=scene.append('g'),activeRoutes=scene.append('g'),marks=scene.append('g'),labels=scene.append('g');
+    const adorn=svg.append('g');
+    const colors={metro2:'var(--viz-series-1)',metro4:'var(--viz-series-2)',walk2:'var(--foreground)',walk1:'var(--foreground)',shuttle:'var(--viz-series-3)',optional:'var(--muted-foreground)'};
+    let current=d3.zoomIdentity;
+    const zoom=d3.zoom().scaleExtent([0.7,6]).on('zoom',event=>{current=event.transform;render();});
+    svg.call(zoom).on('dblclick.zoom',null);
+    function project(c){return current.apply(projection(c));}
+    function fit(){
+      const b=extents[view],f={type:'FeatureCollection',features:b.map(c=>({type:'Feature',geometry:{type:'Point',coordinates:c}}))};
+      projection=d3.geoMercator().fitExtent([[28,38],[width-28,height-42]],f);
+      current=d3.zoomIdentity;svg.call(zoom.transform,current);
+    }
+    function featurePath(f){const p=d3.geoMercator().scale(projection.scale()*current.k).translate(current.apply(projection.translate()));return d3.geoPath(p)(f);}
+    function showDetail(p){
+      const choices=day.steps.filter(s=>s.points.includes(p.name));
+      if(choices.length&&!selected.points.includes(p.name))selectStep(choices[0],false);
+      detail.textContent=p.name+'｜'+p.description;
+    }
+    function updateItinerary(){
+      root.dataset.itineraryDay=day.id;root.dataset.step=selected.id;
+      root.querySelector('[data-day-summary]').textContent=day.summary;
+      const steps=root.querySelector('[data-steps]');steps.replaceChildren();
+      day.steps.forEach((s,i)=>{
+        const b=document.createElement('button');b.type='button';b.className='btn';b.dataset.stepId=s.id;
+        b.setAttribute('aria-pressed',String(s.id===selected.id));
+        b.textContent=(i+1)+' · '+s.shortTime+'｜'+s.title;
+        b.addEventListener('click',()=>selectStep(s,true));steps.append(b);
+      });
+      root.querySelector('[data-step-title]').textContent=selected.title;
+      root.querySelector('[data-step-time]').textContent=selected.time+' · 规划窗口，非预订';
+      const dl=root.querySelector('[data-step-rows]');dl.replaceChildren();
+      for(const [label,text] of selected.rows){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=text;dl.append(dt,dd);}
+      detail.textContent='当前：'+selected.points.join(' · ');
+    }
+    function selectStep(step,changeView){selected=step;updateItinerary();if(changeView){view=step.view;root.querySelector('[data-view]').value=view;fit();}else render();}
+    function activeGeometry(f){
+      if(f.properties.id!=='metro2')return f;
+      const endpoints={
+        'sat-arrival':['长沙南站','湘江中路站'],
+        'sat-transfer':['湘江中路站','橘子洲站'],
+        'sat-dinner':['溁湾镇站','湘江中路站'],
+        'sun-transfer':['湘江中路站','溁湾镇站'],
+        'sun-lunch':['橘子洲站','湘江中路站'],
+        'sun-return':['湘江中路站','长沙南站']
+      }[selected.id];
+      if(!endpoints)return f;
+      const cs=f.geometry.coordinates;
+      const ix=endpoints.map(name=>{const c=data.points.find(p=>p.name===name).coordinates;return d3.minIndex(cs,p=>d3.geoDistance(p,c));});
+      let coordinates=cs.slice(Math.min(...ix),Math.max(...ix)+1);
+      if(ix[0]>ix[1])coordinates=coordinates.reverse();
+      return {...f,geometry:{type:'LineString',coordinates}};
+    }
+    function render(){
+      if(!projection)return;
+      svg.attr('viewBox',`0 0 ${width} ${height}`).attr('height',height);
+      defs.select('rect').attr('width',width).attr('height',height);
+      const visible = data.base.features.filter(f=>view!=='city'||f.properties.kind!=='path');
+      const order={water:0,park:1,academy:2,road:3,path:4};visible.sort((a,b)=>order[a.properties.kind]-order[b.properties.kind]);
+      base.selectAll('path').data(visible,f=>f.properties.id).join('path').attr('d',featurePath)
+        .attr('fill',f=>['Polygon','MultiPolygon'].includes(f.geometry.type)?f.properties.kind==='water'?'color-mix(in srgb,var(--blue) 14%,var(--background))':f.properties.kind==='academy'?'color-mix(in srgb,var(--viz-series-2) 16%,var(--background))':'color-mix(in srgb,var(--green) 10%,var(--background))':'none')
+        .attr('stroke',f=>f.properties.kind==='water'?'color-mix(in srgb,var(--blue) 25%,var(--background))':f.properties.kind==='path'?'color-mix(in srgb,var(--foreground) 16%,var(--background))':'color-mix(in srgb,var(--foreground) 23%,var(--background))')
+        .attr('stroke-width',f=>f.properties.kind==='road'?(view==='city'?0.7:1.3):0.65);
+      routes.selectAll('path').data(data.routes).join('path').attr('d',featurePath).attr('fill','none')
+        .attr('opacity',0.22)
+        .attr('stroke',f=>colors[f.properties.type]).attr('stroke-width',f=>f.properties.type.startsWith('metro')?3.7:2.6)
+        .attr('stroke-dasharray',f=>f.properties.type==='shuttle'?'7 5':f.properties.type.startsWith('walk')?'2 5':f.properties.type==='optional'?'3 5':null)
+        .attr('stroke-linecap','round');
+      activeRoutes.selectAll('path').data(data.routes.filter(f=>selected.routes.includes(f.properties.id)).map(activeGeometry)).join('path')
+        .attr('data-active-route',f=>f.properties.id).attr('d',featurePath).attr('fill','none')
+        .attr('stroke',f=>colors[f.properties.type]).attr('stroke-width',f=>f.properties.type.startsWith('metro')?3.7:2.6)
+        .attr('stroke-dasharray',f=>f.properties.type==='shuttle'?'7 5':f.properties.type.startsWith('walk')?'2 5':f.properties.type==='optional'?'3 5':null)
+        .attr('stroke-linecap','round');
+      const points=data.points.filter(p=>{const [x,y]=project(p.coordinates);return (!p.day||p.day===day.id)&&x>12&&x<width-12&&y>12&&y<height-20;});
+      const g=marks.selectAll('g').data(points,p=>p.id).join(enter=>{const g=enter.append('g');g.append('circle').attr('class','hit');g.append('circle').attr('class','ring');g.append('circle').attr('class','dot');g.append('path').attr('class','area-dot');g.append('title');return g;})
+        .attr('transform',p=>`translate(${project(p.coordinates)})`).style('cursor','pointer').on('click',(e,p)=>showDetail(p));
+      g.select('.hit').attr('r',window.matchMedia('(pointer:coarse)').matches?22:16).attr('fill','transparent');
+      g.select('title').text(p=>p.name+'：'+p.description);
+      g.select('.ring').attr('r',12).attr('fill','none').attr('stroke','var(--foreground)').attr('stroke-width',1.5).attr('display',p=>selected.points.includes(p.name)?null:'none');
+      g.select('.dot').attr('r',p=>p.kind.startsWith('core')?7:p.kind==='base'?7:5)
+        .attr('display',p=>p.kind==='area'?'none':null)
+        .attr('fill',p=>p.kind==='optional'?'var(--background)':p.kind==='core2'?'var(--viz-series-2)':p.kind==='core1'?'var(--viz-series-3)':'var(--background)')
+        .attr('stroke',p=>p.kind==='core2'?'var(--viz-series-2)':p.kind==='core1'?'var(--viz-series-3)':'var(--foreground)').attr('stroke-width',2);
+      g.select('.area-dot').attr('d',d3.symbol().type(d3.symbolDiamond).size(85)()).attr('fill','var(--background)').attr('stroke','var(--foreground)').attr('stroke-width',1.8).attr('display',p=>p.kind==='area'?null:'none');
+      labels.selectAll('*').remove();
+      const occupied=[];
+      let candidates=points.filter(p=>mainPoints.includes(p.name)||p.name==='长沙南站'||view==='academy'||current.k>1.8);
+      candidates.sort((a,b)=>Number(selected.points.includes(b.name))-Number(selected.points.includes(a.name))||(a.kind==='optional'?1:0)-(b.kind==='optional'?1:0));
+      for(const p of candidates){
+        const [x,y]=project(p.coordinates),offset=pointOffsets[p.name]||[12,-12];
+        const aliases={'湘江中路站':day.id==='sat'?'湘江中路 · 住宿接驳':'湘江中路 · 取行李','青年毛泽东雕塑':day.id==='sun'?'09:30—12:00 · 橘子洲南端':'青年毛泽东雕塑','岳麓书院入口':day.id==='sat'?'14:00—17:30 · 书院':'岳麓书院入口'};
+        const name=aliases[p.name]||p.name;
+        const tries=[offset,[12,-26],[-12,30],[12,42],[-12,-40]];
+        let chosen;
+        const text=labels.append('text').attr('class','point-label').text(name).on('click',()=>showDetail(p));
+        for(const [dx,dy] of tries){text.attr('x',x+dx).attr('y',y+dy).attr('text-anchor',dx<0?'end':'start');const b=text.node().getBBox();if(b.x<5||b.x+b.width>width-5||b.y<12||b.y+b.height>height-28)continue;if(occupied.some(o=>b.x<o.x+o.width+5&&b.x+b.width+5>o.x&&b.y<o.y+o.height+5&&b.y+b.height+5>o.y))continue;occupied.push({x:b.x,y:b.y,width:b.width,height:b.height});chosen=[dx,dy];break;}
+        if(!chosen){text.remove();continue;}
+        labels.insert('line',':first-child').attr('x1',x).attr('y1',y).attr('x2',x+chosen[0]).attr('y2',y+chosen[1]-5).attr('stroke','var(--muted-foreground)').attr('stroke-width',0.65);
+      }
+      const river=data.base.features.find(f=>f.properties.name==='湘江');
+      if(river&&view!=='academy'){
+        const [x,y]=project([112.9509,28.1767]);
+        if(x>25&&x<width-25&&y>25&&y<height-40)labels.append('text').attr('class','context-label').attr('x',x).attr('y',y).attr('text-anchor','middle').text('湘 江');
+      }
+      adorn.selectAll('*').remove();
+      adorn.append('text').attr('x',width-18).attr('y',23).attr('text-anchor','end').text('北 ↑');
+      const anchor=projection.invert(current.invert([20,height-22]));
+      const m=view==='city'?2000:view==='academy'?200:500;
+      const dest=[anchor[0]+m/(111320*Math.cos(anchor[1]*Math.PI/180)),anchor[1]];
+      const length=project(dest)[0]-project(anchor)[0];
+      if(length<width-45){adorn.append('line').attr('x1',20).attr('y1',height-22).attr('x2',20+length).attr('y2',height-22).attr('stroke','var(--foreground)').attr('stroke-width',2);adorn.append('text').attr('x',20).attr('y',height-29).text(m>=1000?m/1000+' km':m+' m');}
+      root.dataset.rendered='true';root.dataset.visiblePoints=points.length;root.dataset.baseFeatures=visible.length;
+    }
+    function resize(){const w=Math.max(260,root.getBoundingClientRect().width);if(w===width&&projection)return;width=w;height=width<480?510:580;fit();}
+    root.querySelector('[data-day]').addEventListener('change',e=>{day=itinerary.days.find(d=>d.id===e.target.value);selectStep(day.steps.find(s=>s.id===day.defaultStep),true);});
+    root.querySelector('[data-view]').addEventListener('change',e=>{view=e.target.value;fit();});
+    root.querySelectorAll('[data-zoom]').forEach(b=>b.addEventListener('click',()=>svg.call(zoom.scaleBy,+b.dataset.zoom)));
+    for(const text of itinerary.checklist){const li=document.createElement('li');li.textContent=text;root.querySelector('[data-checklist]').append(li);}
+    updateItinerary();new ResizeObserver(resize).observe(root);resize();
+  })();
+  </script>
+</div>

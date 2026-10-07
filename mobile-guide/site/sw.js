@@ -1,0 +1,10 @@
+const prefix='cs-guide-'+new URL(self.registration.scope).pathname.replace(/[^a-z0-9]/gi,'_')+'-';
+const CACHE=prefix+'v13';
+const ASSETS=['./','./index.html','./redesign.css','./changsha.jpg','./trip.js','./core.js','./app.js','./map.html','./trip-card.html','./manifest.webmanifest','./icon.svg','./icon-192.png','./icon-512.png'];
+self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);try{await cache.addAll(ASSETS);}catch(e){await caches.delete(CACHE);throw e;}})()));
+self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const name of await caches.keys())if(name.startsWith(prefix)&&name!==CACHE)await caches.delete(name);await self.clients.claim();})()));
+self.addEventListener('message',event=>{if(event.data?.type==='activate')self.skipWaiting();});
+self.addEventListener('fetch',event=>{const url=new URL(event.request.url),scope=new URL(self.registration.scope);if(event.request.method!=='GET'||url.origin!==scope.origin||!url.pathname.startsWith(scope.pathname))return;
+  const relative=url.pathname.slice(scope.pathname.length);if(!['','index.html','redesign.css','changsha.jpg','trip.js','core.js','app.js','map.html','trip-card.html','manifest.webmanifest','icon.svg','icon-192.png','icon-512.png'].includes(relative))return;
+  event.respondWith((async()=>{try{const response=await fetch(event.request);return response;}catch{const cache=await caches.open(CACHE);return (await cache.match(event.request,{ignoreSearch:true}))||Response.error();}})());
+});

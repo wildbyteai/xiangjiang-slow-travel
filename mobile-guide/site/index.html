@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#fafbfc"><meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="武汉往返长沙两天慢游：路线、景区导览、美食与出发准备。">
+  <meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="长沙慢游">
+  <link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon-192.png"><link rel="stylesheet" href="./redesign.css">
+  <title>长沙慢游 · 随身导游</title>
+  <link rel="canonical" href="./trip-card.html">
+  <script defer src="./trip.js"></script><script defer src="./core.js"></script><script defer src="./app.js"></script>
+</head>
+<body>
+  <svg xmlns="http://www.w3.org/2000/svg" class="icon-defs" aria-hidden="true"><defs>
+    <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="m16 8-2.5 5.5L8 16l2.5-5.5Z"/></symbol>
+    <symbol id="i-route" viewBox="0 0 24 24"><circle cx="5" cy="5" r="2"/><circle cx="19" cy="19" r="2"/><path d="M7 5h10a4 4 0 0 1 0 8H7a3 3 0 0 0 0 6h10"/></symbol>
+    <symbol id="i-map" viewBox="0 0 24 24"><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2Zm6-2v16M15 5v16"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="3"/><path d="M9 4V2h6v2m-6 9 2 2 4-5"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M4 16v5h16v-5"/></symbol>
+  </defs></svg>
+  <header class="masthead"><a href="#now" class="wordmark" aria-label="长沙慢游首页"><span class="brand-icon"><svg class="icon"><use href="#i-compass"/></svg></span>长沙慢游<span class="brand-sub">随身导游</span></a><span id="mode">行程预览</span></header>
+  <main id="main">
+    <div class="trip-bar"><span>武汉 ↔ 长沙 · 两天一晚</span><span>示例两日行程</span></div>
+    <div class="day-switch" role="group" aria-label="选择旅行日期"><button type="button" data-day="sat"><span class="day-number">01</span><span><strong>岳麓书院</strong><small>示例第一天 · 周六</small></span></button><button type="button" data-day="sun"><span class="day-number">02</span><span><strong>橘子洲慢游</strong><small>示例第二天 · 周日</small></span></button></div>
+    <aside id="travel-priority" class="travel-priority" aria-labelledby="priority-title">
+      <div class="priority-heading"><h2 id="priority-title"></h2><span class="ticket-status" id="priority-status"></span></div>
+      <p id="priority-train" class="priority-train"></p>
+      <ol id="priority-checkpoints" class="priority-checkpoints"></ol>
+      <p id="priority-note" class="priority-note"></p>
+      <div class="priority-bottom"><span>交通时间是预算，实际票面为准</span><button type="button" id="show-timing" class="timing-link">看时间详情</button></div>
+    </aside>
+    <section id="now-view" aria-label="这一站">
+      <div class="section-line"><span id="step-count"></span><span id="progress"></span></div>
+      <article class="current-stop">
+        <div class="destination-visual" id="destination-visual"><img src="./changsha.jpg" alt="橘子洲青年毛泽东艺术雕塑实景" width="4160" height="3120"><span class="photo-label">橘子洲 · 长沙</span></div>
+        <div class="stop-body"><div class="eyebrow" id="stop-time"></div><h1 id="stop-title"></h1><p id="stop-subtitle" class="stop-subtitle"></p>
+        <div class="stop-location"><svg class="icon"><use href="#i-pin"/></svg><span id="stop-location"></span></div>
+        <aside id="step-focus" class="stop-focus" aria-label="这一站的时间重点" hidden><h2 id="focus-title"></h2><p id="focus-note"></p></aside>
+        <div class="transport" id="quick-transport"></div>
+        <button type="button" class="map-open secondary" id="show-map"><svg class="icon"><use href="#i-map"/></svg>查看路线<span class="arrow-end">↗</span></button></div>
+      </article>
+      <div id="guide-details" class="guide-details"></div>
+      <details class="place-tools"><summary><span>地点与导航</span><span class="summary-note">查位置、复制地名</span></summary><label for="place-select" class="sr-only">查地点</label><select id="place-select"></select><div class="action-pair"><a id="map-search" class="secondary" target="_blank" rel="noopener noreferrer">在高德查找 ↗</a><button type="button" class="secondary" id="copy-place">复制地点</button></div><p class="hint">查找后核对具体入口／分店。导航需联网；餐饮片区不是门店定位。</p></details>
+      <div class="next-stop"><span>下一站</span><strong id="next-title"></strong></div>
+      <div class="action-pair"><button type="button" id="previous" class="secondary">上一站</button><button type="button" id="complete" class="primary">完成，去下一站</button></div>
+      <button type="button" id="undo-complete" class="text-button" hidden>撤销这一站的完成标记</button>
+      <p class="hint">按你的节奏手动切换，不自动定位、不倒计时催促。</p>
+    </section>
+    <section id="plan-view" aria-label="两天行程" hidden><div class="page-heading"><span class="kicker">两天 · 各有一个重点</span><h1>旅行安排</h1><p>主景点慢慢看；爱晚亭与饭后散步都可跳过。</p></div><ol id="timeline"></ol><p class="hint">交通用时为保守预算；住宿示例待确认，往返车票示例待确认。先保证正餐、取行李与进站缓冲。</p></section>
+    <section id="map-view" aria-label="行程地图" hidden><h1>路线在这里</h1><p id="map-step" class="hint"></p><div class="map-wrap"><iframe id="guide-map" title="长沙真实地理行程地图" src="./map.html" loading="lazy"></iframe></div><p class="hint">离线参考图，不是实时导航。两指操作交给系统地图；此图可单指拖动、按钮缩放。◇ 表示餐饮／闲逛片区。</p><button type="button" class="secondary" id="back-guide">返回这一站的导览</button></section>
+    <section id="prep-view" aria-label="出发准备" hidden><div class="page-heading"><span class="kicker">出发前的小事</span><h1>出发准备</h1><p>关键信息一屏看清，勾完清单再出门。</p></div>
+      <article class="adopted-brief" aria-label="已采纳关键信息">
+        <h2>交通与住宿</h2>
+        <dl>
+          <div><dt>去 示例第一天</dt><dd id="prep-train-out"><strong>示例去程</strong> 武汉站09:00 → 长沙南10:15（参考）<small>假设时刻，非实际车次</small></dd></div>
+          <div><dt>回 示例第二天</dt><dd id="prep-train-back"><strong>示例返程</strong> 长沙南18:30 → 武汉站19:45（参考）<small>假设时刻，非实际车次</small></dd></div>
+          <div><dt>住宿</dt><dd>湘江中路周边（示例）<small>自行选择与预订，无真实订单</small></dd></div>
+        </dl>
+        <p class="hint">示例数据用于功能展示。请按实际票面、住宿和景区官方公告配置自己的旅程。</p>
+        <button type="button" class="secondary" id="copy-hotel">复制酒店地址</button>
+      </article>
+      <details id="timing-details" class="timing-details"><summary>出发与返程时间详情</summary><p id="timing-caution"></p><div id="timing-days"></div><p class="timing-rule">宁可删爱晚亭与饭后散步，不压缩正餐、取行李和进站缓冲。没有自动定位、倒计时或订票。</p></details>
+      <div class="prep-overview"><div><span class="prep-caption">行前清单</span><p><strong id="prep-count">0</strong><span id="prep-total"> / 6 已确认</span></p></div><svg class="prep-ring" viewBox="0 0 56 56" aria-hidden="true"><circle cx="28" cy="28" r="23"/><circle id="prep-ring-fill" cx="28" cy="28" r="23"/><path d="m18 28 7 7 13-14"/></svg><progress id="prep-progress" max="6" value="0" class="sr-only" aria-label="准备完成进度"></progress></div>
+      <div id="checklist"></div><p class="hint prep-local">仅记在这台设备，不会代你预约或订票。</p><h2 class="group-heading">随身工具</h2>
+      <details class="utility-detail"><summary><span class="utility-icon"><svg class="icon"><use href="#i-download"/></svg></span><span>离线行程<small>没有网络，也能查攻略</small></span></summary><p id="offline-status" role="status">正在检查离线可用状态…</p><button type="button" id="offline-download" class="secondary">保存行程到本机</button><p class="hint">保存导游、地图和景区照片；外部导航与官方预约仍需联网。缓存可能被浏览器清理，出发前请断网试开一次。</p><button type="button" id="offline-remove" class="text-button">移除本机离线副本</button></details>
+      <details><summary>放到手机主屏幕</summary><p>上线后，先用手机浏览器打开自己的访问链接。iPhone 可在 Safari 的分享菜单中选择“添加到主屏幕”；安卓可在浏览器菜单找“安装应用”或“添加到主屏幕”。具体菜单随浏览器版本不同。</p><p>先完成一次在线保存，再断网确认能打开。当前电脑预览地址不是手机随时访问链接。</p></details>
+      <details><summary>预约与资料</summary><a href="https://ylsy.hnu.edu.cn/wbly/cgdn/zxdp.htm" target="_blank" rel="noopener noreferrer">岳麓书院官方购票须知 ↗</a><a href="https://ylsy.hnu.edu.cn/wbly/cgdn/ylxz.htm" target="_blank" rel="noopener noreferrer">岳麓书院官方游览须知 ↗</a><a href="https://ylsy.hnu.edu.cn/wbly/cgdn/jtl_.htm" target="_blank" rel="noopener noreferrer">书院交通与入口说明 ↗</a><p class="hint">预约日期、场次与开放时间以出行当天官方公告为准；本示例没有真实预约。</p></details>
+      <details><summary>隐私与使用边界</summary><p>不采集GPS，不连接旅行账号，不上传浏览进度。查看进度与勾选清单只保存在当前浏览器，换设备不会同步。外部地图只有点击后才会收到地点关键词。</p><p>离线副本留在这台设备上，退出在线账号不等于清除副本。共用手机请移除离线副本。不提供自动导游语音或实时位置提醒。</p></details>
+      <p class="card-link-hint"><a href="./trip-card.html">打开简易出行卡</a></p>
+    </section>
+      <details><summary>照片署名</summary><p>橘子洲照片：এম আবু সাঈদ / Wikimedia Commons，CC BY-SA 4.0。原图未修改，页面适配裁切显示。</p><a href="https://commons.wikimedia.org/wiki/File:Young_Mao_Zedong_statue_5.jpg" target="_blank" rel="noopener noreferrer">照片来源 ↗</a><a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener noreferrer">许可说明 ↗</a></details>
+    <footer>长沙慢游 · 车票示例待确认 · 慢游方案 · 公开示例</footer>
+  </main>
+  <nav class="bottom-nav" aria-label="导游导航"><button type="button" data-tab="now"><svg class="icon"><use href="#i-compass"/></svg><span>这一站</span></button><button type="button" data-tab="plan"><svg class="icon"><use href="#i-route"/></svg><span>行程</span></button><button type="button" data-tab="map"><svg class="icon"><use href="#i-map"/></svg><span>地图</span></button><button type="button" data-tab="prep"><svg class="icon"><use href="#i-check"/></svg><span>准备</span></button></nav>
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+  <noscript>随身导游需要启用JavaScript。你仍可查看已保存的行程文档。</noscript>
+</body>
+</html>
